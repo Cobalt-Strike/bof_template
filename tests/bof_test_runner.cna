@@ -1,0 +1,61 @@
+# Example BOF test runner script to test the internal beacon BOF functions
+# The alias run_boff_tests will run all of the defined tests
+#
+# Usage: run_boff_tests <user_defined_string>  <user_defined_numeric>
+#
+# Example:
+#    run_boff_tests "my user test string" 2022
+#
+
+# Helper function to execute a single test BOF
+# $1 - beacon id
+# $2 - base name of BOF to run
+# $3 - args to pass to BOF
+sub bof_test_runner {
+   local('$barch $handle $data');
+   
+   # figure out the arch of this session
+   $barch  = barch($1);
+   
+   # read the contents of the BOF
+   $handle = openf(script_resource("obj/ $+ $2 $+ . $+ $barch $+ .o"));
+   $data   = readb($handle, -1);
+   closef($handle);
+   
+   # announce what we're doing to the beacon and script consoles
+   btask($1, "Running example BOF: $2");
+   println(formatDate("[HH:mm:ss] ") . "Running example BOF: $2");
+   
+   # execute the BOF.
+   beacon_inline_execute($1, $data, "go", $3);
+}
+
+# Test runner alias to execute the defined tests
+# $1 - beacon id
+# $2 - User test string to pass to the bof file
+# $3 - User test number to pass to the bof file
+# $4 - User test number as a string to pass to the bof file (only testBeaconDataLongLong)
+alias run_boff_tests {
+   local('@tests @test');
+   
+   # Define the tests to run
+   @tests = @(
+      @("testBeaconDataStrings",      bof_pack($1, "zzz", $2, "Test Defined String", "Next Test Defined String")),
+      @("testBeaconDataShorts",       bof_pack($1, "ssssss", $3, $3, -32768, 32767, 0, 65535)),
+      @("testBeaconDataIntegers",     bof_pack($1, "iiiiii", $3, $3, -2147483648, 2147483647, 0, -1)),
+      @("testBeaconDataMixDataTypes", bof_pack($1, "zis", $2, $3, $3)),
+      @("testBeaconDataLongLong",     bof_pack($1, "zi", $4, $3)),
+      @("testBeaconOutput",           bof_pack($1, "zi", $2, $3)),
+      @("testBeaconPrintf",           bof_pack($1, "zi", $2, $3)),
+      @("testBeaconFormat",           bof_pack($1, "zi", $2, $3)),
+      @("testBeaconErrorD",           $null),
+      @("testBeaconErrorDD",          $null),
+      @("testBeaconErrorNA",          $null)
+   );
+
+   foreach @test (@tests)
+   {
+      bof_test_runner($1, @test[0], @test[1]);
+   }
+}
+
