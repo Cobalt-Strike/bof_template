@@ -4,6 +4,9 @@
  * A Beacon Object File is a light-weight post exploitation tool that runs
  * with Beacon's inline-execute command.
  *
+ * Additional BOF resources are available here:
+ *   - https://github.com/Cobalt-Strike/bof_template
+ *
  * Cobalt Strike 4.x
  * ChangeLog:
  *    1/25/2022: updated for 4.5
