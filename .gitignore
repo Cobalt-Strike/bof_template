@@ -1,3 +1,10 @@
+# Object Files
+*.o
+
+# IntelliJ files
+*.iml
+.idea
+
 # MacOS
 
 # General

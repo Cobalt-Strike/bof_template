@@ -1,0 +1,40 @@
+beacon_command_register(
+   "cs_read_virtual_memory",
+   "Used to display example output with or without formatting",
+
+   "Used to display example output with or without formatting\n\n" .
+
+   "Usage:\n" .
+   "   cs_read_virtual_memory [module] [function] [length] [format]\n\n" .
+
+   "Arguments:\n" .
+   "   \$1 - beacon id (CS automatically adds this argument)\n" .
+   "   \$2 - Module name\n" .
+   "   \$3 - Function name\n" .
+   "   \$4 - Length of bytes to read\n" .
+   "   \$5 - Format [0|1]\n\n" .
+
+
+   "Examples:\n" .
+   "   cs_read_virtual_memory ntdll.dll EtwEventWrite 5 0\n" .
+   "   cs_read_virtual_memory ntdll.dll EtwEventWrite 5 1\n\n"
+);
+
+alias cs_read_virtual_memory {
+   local('$bid $module $function $length $format $barch $handle $data $args');
+
+   ($bid, $module, $function, $length, $format) = @_;
+
+   # figure out the arch of this session
+   $barch  = barch($bid);
+   
+   # read in the right BOF file
+   $handle = openf(script_resource("cs_read_virtual_memory. $+ $barch $+ .o"));
+   $data   = readb($handle, -1);
+   closef($handle);
+
+   $args = bof_pack($bid, "zzii", $module, $function, $length, $format);
+   
+   # execute it.
+   beacon_inline_execute($bid, $data, "go", $args);
+}

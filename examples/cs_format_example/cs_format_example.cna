@@ -1,0 +1,53 @@
+beacon_command_register(
+   "cs_format_example",
+   "Used to display example output with or without formatting",
+
+   "Used to display example output with or without formatting\n\n" .
+
+   "Usage:\n" .
+   "   cs_format_example [options]\n\n" .
+
+   "Arguments:\n" .
+   "   \$1 - beacon id (CS automatically adds this argument)\n\n" .
+
+   "Options:\n" .
+   "   --format [yes|no] - do additional formatting of output. Default is no\n\n" .
+
+   "Examples:\n" .
+   "   cs_format_example\n" .
+   "   cs_format_example --format yes\n\n"
+);
+
+alias cs_format_example {
+   local('$bid $format_arg $format_val');
+
+   ($bid, $format_arg, $format_val) = @_;
+
+   if (($format_arg eq "--format") && ($format_val eq "yes")) {
+      btask($bid, "Loop Example with formatting BOF");
+      run_example($bid, "go_format");
+   } else {
+      btask($bid, "Loop Example with no formatting BOF");
+      run_example($bid, "go");
+   }
+}
+
+# Arguments
+# $1 - beacon id
+# $2 - entry point (function name)
+sub run_example {
+   local('$bid $entry_point $barch $handle $data $args');
+
+   ($bid, $entry_point) = @_;
+   
+   # figure out the arch of this session
+   $barch  = barch($bid);
+   
+   # read in the right BOF file
+   $handle = openf(script_resource("cs_format_example. $+ $barch $+ .o"));
+   $data   = readb($handle, -1);
+   closef($handle);
+   
+   # execute it.
+   beacon_inline_execute($bid, $data, $entry_point, $null);
+}

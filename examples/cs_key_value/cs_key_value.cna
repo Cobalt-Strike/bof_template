@@ -1,0 +1,88 @@
+beacon_command_register(
+   "cs_key_value",
+   "Used to demonstrate the key value internal beacon APIs",
+
+   "Used to demonstrate the key value internal beacon APIs\n\n" .
+
+   "The cs_key_value BOF will take a key and state options to demonstrate\n" .
+   "how you can add, get, or remove information to the beacon's key/value\n" .
+   "store so it can be referenced by subsequent BOF executions or even a\n" .
+   "different BOF that knows the key and data type. The 'init' state will\n" .
+   "initialize a small data structure and add it to the key/value store.\n" .
+   "The 'continue' state will get the data and modify it's contents based\n" . 
+   "on the current contents.  The 'finish' state will get the data in order\n" .
+   "to release the memory and remove the key from the key/value store.\n\n" .
+
+   "Usage:\n" .
+   "   cs_key_value [options]\n\n" .
+
+   "Arguments:\n" .
+   "   \$1 - beacon id (CS automatically adds this argument)\n\n" .
+
+   "Options (specified in any order):\n" .
+   "   --key <key>            - specify a key name to use for the BOF\n" .
+   "   --state <state>        - specify which state to execute in the BOF\n" .
+   "                                 valid state: init, continue, and finish\n\n" .
+
+   "Examples:\n" .
+   "   cs_key_value --key default --state init\n" .
+   "   cs_key_value --key default --state continue\n" .
+   "   cs_key_value --key default --state finish\n\n"
+);
+
+alias cs_key_value {
+  # Declare local variables
+   local('$bid @valid_opts %opts $opt_cnt $opt_ind $opt $value $barch $handle $data $args');
+
+   # Set the defaults
+   %opts["--state"] = "init";
+   %opts["--key"] = "default";
+
+   # Assign parameters to the opts hash map
+   $bid = @_[0];
+   $opt_cnt = size(@_);
+   @valid_opts = @("--state", "--key");
+   for($opt_ind = 1; $opt_ind < $opt_cnt; $opt_ind++) {
+      # Set the arg and value for this iteration
+      $opt = @_[$opt_ind];
+      $opt_ind++;
+      $value = iff( $opt_ind >= $opt_cnt, $null, @_[$opt_ind] );
+
+      # Do some simple validation on opt and value
+      if ($opt !in @valid_opts) {
+         berror($bid, "$opt is not a valid option.");
+         return;
+      }
+      if ($value is $null || $value in @valid_opts) {
+         berror($bid, "Missing or invalid value for the $opt option.");
+         return;
+      }
+
+      # Save the opt and value into the opts hash
+      %opts[$opt] = $value;
+   }
+
+   # Validate options
+   if (%opts["--state"] !in @("init", "continue", "finish")) {
+      berror($bid, "state value is not valid: " . %opts["--state"]);
+      return;
+   }
+
+
+	# figure out the arch of this session
+	$barch  = barch($bid);
+
+	# read in the right BOF file
+	$handle = openf(script_resource("cs_key_value. $+ $barch $+ .o"));
+	$data   = readb($handle, -1);
+	closef($handle);
+
+   # Pack our arguments
+   $args   = bof_pack($1, "zz", %opts["--state"], %opts["--key"]);
+
+	# announce what we're doing
+	btask($bid, "Running cs_key_value BOF using state: " . %opts["--state"] . " and key: " . %opts["--key"]);
+
+	# execute it.
+	beacon_inline_execute($bid, $data, "go", $args);
+}

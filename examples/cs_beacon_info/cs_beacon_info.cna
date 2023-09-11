@@ -1,0 +1,38 @@
+beacon_command_register(
+   "cs_beacon_info",
+   "Used to display the information returned from the BeaconInformation API",
+
+   "Used to display the information returned from the BeaconInformation API\n\n" .
+
+   "Usage:\n" .
+   "   cs_beacon_info\n\n" .
+
+   "Arguments:\n" .
+   "   \$1 - beacon id (CS automatically adds this argument)\n\n" .
+
+   "Examples:\n" .
+   "   cs_beacon_info\n\n"
+);
+
+# Arguments
+# $1 - beacon id
+alias cs_beacon_info {
+	local('$bid $barch $handle $data');
+
+	# Assign parameters user friendly names
+	($bid) = @_;
+
+	# figure out the arch of this session
+	$barch  = barch($bid);
+
+	# read in the right BOF file
+	$handle = openf(script_resource("cs_beacon_info. $+ $barch $+ .o"));
+	$data   = readb($handle, -1);
+	closef($handle);
+
+	# announce what we're doing
+	btask($bid, "Running cs_beacon_info BOF");
+
+	# execute it.
+	beacon_inline_execute($bid, $data, "go", $null);
+}
