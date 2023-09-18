@@ -153,7 +153,7 @@ DECLSPEC_IMPORT BOOL BeaconRemoveValue(const char * key);
 typedef struct {
 	int type;
 	DWORD64 hash;
-	BOOL protected;
+	BOOL masked;
 	char* buffer;
 	size_t length;
 } DATA_STORE_OBJECT, *PDATA_STORE_OBJECT;
