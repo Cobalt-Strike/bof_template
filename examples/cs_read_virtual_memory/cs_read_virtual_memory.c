@@ -1,10 +1,12 @@
 #include <windows.h>
 #include "../../beacon.h"
 
-WINBASEAPI WINBOOL WINAPI KERNEL32$ReadProcessMemory (HANDLE hProcess, LPCVOID lpBaseAddress, LPVOID lpBuffer, SIZE_T nSize, SIZE_T *lpNumberOfBytesRead);
+//WINBASEAPI WINBOOL WINAPI KERNEL32$ReadProcessMemory (HANDLE hProcess, LPCVOID lpBaseAddress, LPVOID lpBuffer, SIZE_T nSize, SIZE_T *lpNumberOfBytesRead);
 WINBASEAPI void *__cdecl MSVCRT$malloc(size_t _Size);
 WINBASEAPI void __cdecl MSVCRT$free(void *_Memory);
 
+#define malloc MSVCRT$malloc
+#define free   MSVCRT$free
 
 HMODULE GetModHandle(LPCSTR module) {
    HMODULE hModule = GetModuleHandleA(module);
@@ -31,10 +33,15 @@ void ReadVirtualMemory(LPCSTR module, LPCSTR function, int len, int format) {
 
    BeaconFormatAlloc(&buffer, 1024);
 
-   readBuffer = MSVCRT$malloc(len);
-   KERNEL32$ReadProcessMemory((HANDLE) -1, memptr, readBuffer, len, &bytesRead);
 
-   BeaconFormatPrintf(&buffer, "Showing the first %i opcodes of $s!%s\n", len, module, function); 
+   readBuffer = malloc(len);
+#if 0
+   KERNEL32$ReadProcessMemory((HANDLE) -1, memptr, readBuffer, len, &bytesRead);
+#else
+   BeaconReadProcessMemory((HANDLE) -1, memptr, readBuffer, len, &bytesRead);
+#endif
+
+   BeaconFormatPrintf(&buffer, "Showing the first %i opcodes of %s!%s\n", len, module, function);
    for (SIZE_T i = 0; i < bytesRead; ++i) {
       if (format) {
          BeaconFormatPrintf(&buffer, "\\x%02X", readBuffer[i]); 
@@ -46,7 +53,7 @@ void ReadVirtualMemory(LPCSTR module, LPCSTR function, int len, int format) {
    BeaconPrintf(CALLBACK_OUTPUT, "%s\n", BeaconFormatToString(&buffer, NULL));
   
    BeaconFormatFree(&buffer);
-   MSVCRT$free(readBuffer);
+   free(readBuffer);
 }
 
 void go(char *args, int argLen) {
