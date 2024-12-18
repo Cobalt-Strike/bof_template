@@ -9,20 +9,20 @@ void systemCallTestMemory(formatp * outBuffer) {
    BeaconFormatPrintf(outBuffer, "Running System Call Test Memory\n");
 
    /* Allocate some memory to test with */
-   buffer = BeaconVirtualAlloc(NULL, NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+   buffer = BeaconVirtualAlloc(NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
    if (!buffer) {
       BeaconPrintf(CALLBACK_ERROR, "Failed to allocate %lu bytes of memory\n");
    }
    BeaconFormatPrintf(outBuffer, "Allocated memory at %p with protection set to %x\n", buffer, PAGE_READWRITE);
 
    /* Change protection on a page to be PAGE_EXECUTE_READ */
-   if (!BeaconVirtualProtect(NULL, buffer, 0x1000, PAGE_EXECUTE_READ, &oldProtection)) {
+   if (!BeaconVirtualProtect(buffer, 0x1000, PAGE_EXECUTE_READ, &oldProtection)) {
       BeaconPrintf(CALLBACK_ERROR, "Failed to protect the page of memory\n");
    }
    BeaconFormatPrintf(outBuffer, "Protected memory at %p with protection set to %x previous protection %x\n", buffer, PAGE_EXECUTE_READ, oldProtection);
 
    /* Change protection on a page to be PAGE_EXECUTE_READ */
-   if (!BeaconVirtualProtect(NULL, buffer, 0x1000, PAGE_EXECUTE_READWRITE, &oldProtection)) {
+   if (!BeaconVirtualProtect(buffer, 0x1000, PAGE_EXECUTE_READWRITE, &oldProtection)) {
       BeaconPrintf(CALLBACK_ERROR, "Failed to protect the page of memory\n");
    }
    BeaconFormatPrintf(outBuffer, "Protected memory at %p with protection set to %x previous protection %x\n", buffer, PAGE_EXECUTE_READWRITE, oldProtection);
