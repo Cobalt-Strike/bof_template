@@ -40,6 +40,22 @@ void dump_syscalls(formatp * buffer, PBEACON_SYSCALLS info) {
    dump_api_entry(buffer, "ntReadFile", &info->syscalls.ntReadFile);
    dump_api_entry(buffer, "ntWriteFile", &info->syscalls.ntWriteFile);
    dump_api_entry(buffer, "ntCreateFile", &info->syscalls.ntCreateFile);
+   dump_api_entry(buffer, "ntQueueApcThread", &info->syscalls.ntQueueApcThread);
+   dump_api_entry(buffer, "ntCreateProcess", &info->syscalls.ntCreateProcess);
+   dump_api_entry(buffer, "ntOpenProcessToken", &info->syscalls.ntOpenProcessToken);
+   dump_api_entry(buffer, "ntTestAlert", &info->syscalls.ntTestAlert);
+   dump_api_entry(buffer, "ntSuspendProcess", &info->syscalls.ntSuspendProcess);
+   dump_api_entry(buffer, "ntResumeProcess", &info->syscalls.ntResumeProcess);
+   dump_api_entry(buffer, "ntQuerySystemInformation", &info->syscalls.ntQuerySystemInformation);
+   dump_api_entry(buffer, "ntQueryDirectoryFile", &info->syscalls.ntQueryDirectoryFile);
+   dump_api_entry(buffer, "ntSetInformationProcess", &info->syscalls.ntSetInformationProcess);
+   dump_api_entry(buffer, "ntSetInformationThread", &info->syscalls.ntSetInformationThread);
+   dump_api_entry(buffer, "ntQueryInformationProcess", &info->syscalls.ntQueryInformationProcess);
+   dump_api_entry(buffer, "ntQueryInformationThread", &info->syscalls.ntQueryInformationThread);
+   dump_api_entry(buffer, "ntOpenSection", &info->syscalls.ntOpenSection);
+   dump_api_entry(buffer, "ntAdjustPrivilegesToken", &info->syscalls.ntAdjustPrivilegesToken);
+   dump_api_entry(buffer, "ntDeviceIoControlFile", &info->syscalls.ntDeviceIoControlFile);
+   dump_api_entry(buffer, "ntWaitForMultipleObjects", &info->syscalls.ntWaitForMultipleObjects);
 
    BeaconFormatPrintf(buffer, "\nRun Time Library Functions:\n");
    dump_rtl_entry(buffer, "rtlDosPathNameToNtPathNameUWithStatusAddr", info->rtls.rtlDosPathNameToNtPathNameUWithStatusAddr);
