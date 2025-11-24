@@ -22,7 +22,10 @@
  *    4/19/2024: Added BeaconGetSyscallInformation API for 4.10
  *    4/25/2024: Added APIs to call Beacon's system call implementation
  *    12/18/2024: Updated BeaconGetSyscallInformation API for 4.11 (Breaking changes)
- *    2/13/2025: Updated SYSCALL_API structure with more ntAPIs
+ *    2/13/2025: Updated SYSCALL_API structure with more ntAPIs for 4.11
+ *    3/20/2025: Updated ALLOCATED_MEMORY_SECTION structure with driploader page size for 4.12
+ *    4/7/2025: Updated ALLOCATED_MEMORY_REGION structure with driploader allocation granularity for 4.12
+ *    7/16/2025: Updated ALLOCATED_MEMORY_PURPOSE structure with PURPOSE_UDC2_MEMORY for 4.12
  */
 #ifndef _BEACON_H_
 #define _BEACON_H_
@@ -74,6 +77,7 @@ DECLSPEC_IMPORT void    BeaconFormatInt(formatp * format, int value);
 
 DECLSPEC_IMPORT void   BeaconOutput(int type, const char * data, int len);
 DECLSPEC_IMPORT void   BeaconPrintf(int type, const char * fmt, ...);
+DECLSPEC_IMPORT BOOL   BeaconDownload(const char * filename, const char* buffer, unsigned int length);
 
 
 /* Token Functions */
@@ -109,6 +113,7 @@ typedef enum {
 	PURPOSE_BEACON_MEMORY,
 	PURPOSE_SLEEPMASK_MEMORY,
 	PURPOSE_BOF_MEMORY,
+	PURPOSE_UDC2_MEMORY,
 	PURPOSE_USER_DEFINED_MEMORY = 1000
 } ALLOCATED_MEMORY_PURPOSE;
 
@@ -169,6 +174,7 @@ typedef struct _ALLOCATED_MEMORY_SECTION {
 	DWORD  CurrentProtect;        // Current memory protection of the section
 	DWORD  PreviousProtect;       // The previous memory protection of the section (prior to masking/unmasking)
 	BOOL   MaskSection;           // A boolean to indicate whether the section should be masked
+	DWORD  DripLoadPageSize;      // The page size used when committing memory during drip-loading
 } ALLOCATED_MEMORY_SECTION, *PALLOCATED_MEMORY_SECTION;
 
 typedef struct _ALLOCATED_MEMORY_REGION {
@@ -176,6 +182,7 @@ typedef struct _ALLOCATED_MEMORY_REGION {
 	PVOID  AllocationBase;                 // The base address of the allocated memory block
 	SIZE_T RegionSize;                     // The size of the allocated memory block
 	DWORD Type;                            // The type of memory allocated
+	DWORD DripLoadAllocationGranularity;   // The allocation granularity used when reserving memory for drip-loading
 	ALLOCATED_MEMORY_SECTION Sections[8];  // An array of section information structures
 	ALLOCATED_MEMORY_CLEANUP_INFORMATION CleanupInformation; // Information required to cleanup the allocation
 } ALLOCATED_MEMORY_REGION, *PALLOCATED_MEMORY_REGION;
