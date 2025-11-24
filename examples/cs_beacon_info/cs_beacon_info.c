@@ -77,6 +77,7 @@ static void dump_allocated_memory_section(formatp *buffer, PALLOCATED_MEMORY_SEC
 	BeaconFormatPrintf(buffer, "\t\t\tCurrenProtection: 0x%x\n", memorySection->CurrentProtect);
 	BeaconFormatPrintf(buffer, "\t\t\tPreviousProtect: 0x%x\n", memorySection->PreviousProtect);
 	BeaconFormatPrintf(buffer, "\t\t\tMaskSection: %s\n", memorySection->MaskSection ? "TRUE" : "FALSE");
+	BeaconFormatPrintf(buffer, "\t\t\tDripLoadPageSize: %lu\n", memorySection->DripLoadPageSize);
 }
 
 static void dump_allocated_memory_cleanup_information(formatp *buffer, PALLOCATED_MEMORY_CLEANUP_INFORMATION cleanupInformation) {
@@ -116,6 +117,7 @@ static void dump_allocated_memory_region(formatp * buffer, PALLOCATED_MEMORY_REG
 	BeaconFormatPrintf(buffer, "\t\tBaseAddress: %p\n", memoryRegion->AllocationBase);
 	BeaconFormatPrintf(buffer, "\t\tRegionSize: 0x%x (%lu)\n", memoryRegion->RegionSize, memoryRegion->RegionSize);
 	BeaconFormatPrintf(buffer, "\t\tType: 0x%x\n", memoryRegion->Type);
+	BeaconFormatPrintf(buffer, "\t\tDripLoadAllocationGranularity: %lu\n", memoryRegion->DripLoadAllocationGranularity);
 
 	/* loop through the Sections */
 	for (i = 0; i < sizeof(memoryRegion->Sections) / sizeof(ALLOCATED_MEMORY_SECTION); ++i) {
@@ -154,7 +156,7 @@ void go(char * args, int alen) {
    char *userData = NULL;
 
    /* Call beacon api to get the information */
-   info.version = 0x041000;
+   info.version = 0x041200;
    if (!BeaconInformation(&info)) {
       BeaconPrintf(CALLBACK_ERROR, "BeaconInformation failed: unhandled version: 0x%x\n", info.version);
       return;   
